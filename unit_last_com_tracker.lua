@@ -1,7 +1,7 @@
 function widget:GetInfo()
     return {
         name      = "Unit Enemy Last Com Tracker",
-        desc      = "Notify about Enemy Last Commander location.",
+        desc      = "Notify about Enemy Last Commander location. Also shows ghost!",
         author    = "Tom Fyuri",
         date      = "2023",
         license   = "GNU GPL, v2 or later",
