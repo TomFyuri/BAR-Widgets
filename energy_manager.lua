@@ -70,7 +70,7 @@ local origNames = {}
 local totalReceived = {}
 
 -- verbosity stuff
-local silentMode = false -- flip to true to never ever talk
+local silentMode = true -- flip to true to never ever talk
 local msgCount = 0
 local energyDonated = 0
 local energyDonatedMilestone = 100000
