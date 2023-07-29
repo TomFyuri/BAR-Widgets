@@ -122,9 +122,9 @@ function widget:UnitDestroyed(unitID, unitDefID, unitTeam, attackerID, attackerD
   		widgetHandler:RemoveWidget()
   	end
     if spIsUnitAllied(unitID) and isPinPointer(unitDefID) then
-        if (allyPinpointerCounter == 3) or (allyPinpointerCounter == 1) then
+        allyPinpointerCounter = allyPinpointerCounter - 1
+        if (allyPinpointerCounter == 2) or (allyPinpointerCounter == 0) then
         	  local x, y, z = spGetUnitPosition(unitID)
-            allyPinpointerCounter = allyPinpointerCounter - 1
         		spMarkerAddPoint (x, y, z, "Our team has lost a pinpointer! We have "..allyPinpointerCounter.." out of 3 required.", global_pings)
         end
     end
