@@ -59,6 +59,8 @@ local spGetTeamColor		= Spring.GetTeamColor
 local spSendCommands = Spring.SendCommands
 local spGetSelectedUnits = Spring.GetSelectedUnits
 local spSelectUnitArray = Spring.SelectUnitArray
+local spGetSelectedUnitsCount = Spring.GetSelectedUnitsCount
+local spSelectUnitMap = Spring.SelectUnitMap
 local myTeamID = Spring.GetMyTeamID()
 local myAllyTeamID = Spring.GetMyAllyTeamID()
 local gaiaTeamID = Spring.GetGaiaTeamID()
@@ -82,6 +84,8 @@ local unitsUnitDefID = {} 	 -- Array to store units original unitdefid, in case 
 local unitsForSale = {}      -- Array to store units offered for sale {UnitID => metalCost}
 local reservedUnits = {}     -- Array to keep track of reserved units {UnitID => AllyTeamID}
 local debtByAllyTeamID = {}  -- Array to track the debt between allies {AllyTeamID => debtAmount}
+
+local transferingUnits = nil -- unitID when you are giving away unit in that frame, otherwise nil
 
 function GetTeamData()
 	for _, allyTeamID in ipairs(spGetTeamList(myAllyTeamID)) do
@@ -201,6 +205,10 @@ function widget:RecvLuaMsg(msg, playerID)
     end
 end
 
+function widget:SelectionChanged(selectedUnits)
+		if not transferingUnits then return end
+		return transferingUnits -- :/
+end
 function widget:GameFrame(frame)
 		if (frame % 30 == 15) then -- once a second
 				--spEcho("OK")
@@ -213,12 +221,14 @@ function widget:GameFrame(frame)
 						end
 						--spEcho("reserved unit "..unitID.." and debt: "..debtByAllyTeamID[allyTeamID])
 						if debtByAllyTeamID[allyTeamID] == 0 then
+								transferingUnits = unitID
 								--spEcho("debug: transfering unit") -- ideally should transfer all units in one go...
 
 								local selectedUnits = spGetSelectedUnits()
+								local unitCount = spGetSelectedUnitsCount()
 
 								-- meh this too needs a gadget...
-								if (#selectedUnits > 0) then
+								if (unitCount > 0) then
 										spSelectUnitArray({unitID}, false)
 										spShareResources(allyTeamID, "units") -- unit_sold should be sent by receiver
 
@@ -227,6 +237,9 @@ function widget:GameFrame(frame)
 										spSelectUnitArray({unitID}, false)
 										spShareResources(allyTeamID, "units") -- unit_sold should be sent by receiver
 								end
+								-- ^ wish there was just a gadget callin "SellUnit(unitID, allyTeamID, metalCost)" :/
+
+								transferingUnits = nil
 						end
 				end
 		end
