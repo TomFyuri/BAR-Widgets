@@ -13,6 +13,7 @@ function widget:GetInfo() return {
 -- it will mark first air raid
 -- it will mark first com drop
 -- it will mark all gremlins once
+-- it will mark ghosts
 -- it will mark scout-riders in the first 3 minutes of the match
 -- it will warn about enemy game ender arties
 -- it will mark anti-nukes, nukes and tac silos
