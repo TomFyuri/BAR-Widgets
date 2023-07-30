@@ -422,7 +422,7 @@ local function MarkUnit(unitID, unitDefID, teamID)
 		prevMarkY[unitID] = prevY
 		prevMarkZ[unitID] = prevZ
 
-		if isCalamity(unitDefID) and not warnedAboutCalamity then
+		if isCalamity(unitDefID) and not warnedAboutCalamity and not(spGetSpectatingState()) and not global_pings then
 			warnedAboutCalamity = true
 			if buildProgress < 1 then
 				spSendCommands("say a: The enemy team is making a Game Ender Artillery!")

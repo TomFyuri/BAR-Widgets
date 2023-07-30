@@ -279,7 +279,7 @@ function widget:GameFrame(frame)
       if not(notifiedAboutLastCom) and (EnemyComCount == 1) then
         if not (warnedAboutLastEnemyCom) then
             warnedAboutLastEnemyCom = true
-            if not(global_pings) then -- consider saying this anyway...
+            if not(global_pings) and not(spGetSpectatingState()) then -- consider saying this anyway...
             spSendCommands("say a:Enemy team is down to their last commander!")
             end -- remember: false means yes in this case ^
         end
