@@ -10,27 +10,11 @@ function widget:GetInfo()
     }
 end
 
--- WIP, severely missing the 1,2,3,4,5,6,7,8,9,0 symbol linemap.
+-- WIP, missing symbols?
+-- Code by Tom Fyuri
+-- 1/2 of characters by Tom Fyuri, 1/2 by socdoneleft
+-- socdoneleft fixed pic easter egg and added luaui cmd to change char size
 
--- Thanks socdoneleft for half of the character coord map though.
--- The rest of the code by Tom Fyuri.
-
-local function WriteTextAction(_, _, args, data)
-    local text = table.concat(args, " ")
-    WriteText(text)
-end
-
-function widget:TextCommand(command)
-    local keyword = 'write_text'
-    if (string.find(command, keyword) == 1) then
-        local text = string.sub(command, string.len(keyword) + 2) -- +2 to skip the space after 'write_text'
-        WriteText(text)
-    end
-end
-
-function widget:Initialize()
-	widgetHandler:AddAction("write_text", WriteTextAction, nil, 'p')
-end
 
 local lineCoords = {
     A = {
@@ -292,196 +276,6 @@ local lineCoords = {
 		{x = 4, y = 3},
 		{x = 5, y = 3}
 	},
-	["~"] = {
-		{x = 8, y = 2},
-		{x = 6, y = 0},
-		{x = 2, y = 0},
-		{x = 0, y = 2},
-		{x = 0, y = 5},
-		{x = 4, y = 5},
-		{x = 4, y = 2},
-		{x = 0, y = 2},
-		{x = 0, y = 5},
-		{x = 1, y = 5},
-		{x = 1, y = 5},
-		{x = 1, y = 10},
-		{x = 3, y = 10},
-		{x = 3, y = 8},
-		{x = 6, y = 8},
-		{x = 6, y = 10},
-		{x = 8, y = 10},
-		{x = 8, y = 6},
-		{x = 10, y = 6},
-		{x = 10, y = 2},
-		{x = 8, y = 2},
-		{x = 8, y = 6}
-	},
-	["`"] = { -- this one was supposed to be a picture, but yeah, too hard on the engine?
-		{x = 0.5, y = 0.1},
-		{x = 0.2, y = 0.5},
-		{x = 0, y = 0.8},
-		{x = 0.1, y = 1.6},
-		{x = 1.4, y = 2.7},
-		{x = 2.6, y = 2.8},
-		{x = 1.4, y = 2.7},
-		{x = 1.9, y = 3.8},
-		{x = 2.9, y = 4.4},
-		{x = 2.9, y = 4.6},
-		{x = 1.7, y = 5.7},
-		{x = 1.7, y = 5.9},
-		{x = 2, y = 5.9},
-		{x = 3.1, y = 5.1},
-		{x = 2.9, y = 4.6},
-		{x = 3.1, y = 5.1},
-		{x = 3.1, y = 5.5},
-		{x = 2, y = 6.5},
-		{x = 2, y = 6.8},
-		{x = 2.2, y = 6.8},
-		{x = 3.3, y = 6},
-		{x = 3.1, y = 5.5},
-		{x = 3.3, y = 6},
-		{x = 3.4, y = 6.4},
-		{x = 2.4, y = 7.3},
-		{x = 2.5, y = 7.6},
-		{x = 3.6, y = 6.9},
-		{x = 3.4, y = 6.4},
-		{x = 3.6, y = 6.9},
-		{x = 3.7, y = 7.7},
-		{x = 3.9, y = 8.2},
-		{x = 2.9, y = 9.4},
-		{x = 2.8, y = 9.5},
-		{x = 2.8, y = 9.7},
-		{x = 2.9, y = 9.8},
-		{x = 3.8, y = 9.9},
-		{x = 4.6, y = 9.9},
-		{x = 4.7, y = 9.8},
-		{x = 5.3, y = 9.8},
-		{x = 5.4, y = 9.9},
-		{x = 5.9, y = 9.9},
-		{x = 7, y = 9.8},
-		{x = 7, y = 9.4},
-		{x = 6.1, y = 8.2},
-		{x = 6.2, y = 7.7},
-		{x = 6.4, y = 7},
-		{x = 7.2, y = 7.6},
-		{x = 7.4, y = 7.4},
-		{x = 6.6, y = 6.5},
-		{x = 6.4, y = 7},
-		{x = 6.6, y = 6.5},
-		{x = 6.6, y = 6},
-		{x = 7.6, y = 6.7},
-		{x = 7.7, y = 6.4},
-		{x = 6.8, y = 5.5},
-		{x = 6.6, y = 6},
-		{x = 6.8, y = 5.5},
-		{x = 6.8, y = 5.2},
-		{x = 7.9, y = 5.9},
-		{x = 8.1, y = 5.6},
-		{x = 7.1, y = 4.6},
-		{x = 6.8, y = 4.9},
-		{x = 6.8, y = 5.2},
-		{x = 6.8, y = 4.9},
-		{x = 7.1, y = 4.6},
-		{x = 8.3, y = 3.3},
-		{x = 8.5, y = 2.8},
-		{x = 9.4, y = 2.1},
-		{x = 9.8, y = 1.4},
-		{x = 9.9, y = 1},
-		{x = 9.8, y = 0.5},
-		{x = 9.4, y = 0.1},
-		{x = 8.8, y = 0.5},
-		{x = 8.3, y = 1.1},
-		{x = 7.8, y = 0.5},
-		{x = 7.7, y = 0},
-		{x = 7.3, y = 0},
-		{x = 6.6, y = 0.6},
-		{x = 6.5, y = 1.2},
-		{x = 6.6, y = 1.9},
-		{x = 6.9, y = 2.3},
-		{x = 7.3, y = 1.7},
-		{x = 8.3, y = 1.1},
-		{x = 7.3, y = 1.7},
-		{x = 6.9, y = 2.3},
-		{x = 7.2, y = 2.8},
-		{x = 7.7, y = 2.9},
-		{x = 8.5, y = 2.8},
-		{x = 7.7, y = 2.9},
-		{x = 7.2, y = 2.8},
-		{x = 6.9, y = 3.4},
-		{x = 7, y = 4},
-		{x = 7.1, y = 4.6},
-		{x = 7, y = 4},
-		{x = 6.9, y = 3.4},
-		{x = 6.6, y = 2.8},
-		{x = 6.2, y = 2.4},
-		{x = 6.2, y = 2.1},
-		{x = 6.1, y = 2},
-		{x = 5.8, y = 2},
-		{x = 5.6, y = 2.2},
-		{x = 5.6, y = 2.4},
-		{x = 5.7, y = 2.5},
-		{x = 6.1, y = 2.5},
-		{x = 6.2, y = 2.4},
-		{x = 6.2, y = 2.1},
-		{x = 6.1, y = 2},
-		{x = 5.8, y = 2},
-		{x = 5, y = 2.1},
-		{x = 4.2, y = 2},
-		{x = 3.8, y = 2},
-		{x = 3.7, y = 2.1},
-		{x = 3.7, y = 2.4},
-		{x = 3.8, y = 2.5},
-		{x = 4.1, y = 2.5},
-		{x = 4.2, y = 2.4},
-		{x = 4.2, y = 2},
-		{x = 3.8, y = 2},
-		{x = 3.7, y = 2.1},
-		{x = 3.7, y = 2.4},
-		{x = 3.2, y = 3},
-		{x = 2.9, y = 3.5},
-		{x = 2.9, y = 4.4},
-		{x = 3.1, y = 5.1},
-		{x = 4, y = 5.9},
-		{x = 4.9, y = 6},
-		{x = 5.7, y = 6},
-		{x = 6.3, y = 5.6},
-		{x = 6.8, y = 5.2},
-		{x = 6.8, y = 5.5},
-		{x = 6.6, y = 6},
-		{x = 6, y = 6.6},
-		{x = 5, y = 6.8},
-		{x = 4, y = 6.6},
-		{x = 3.3, y = 6},
-		{x = 3.4, y = 6.4},
-		{x = 3.6, y = 6.9},
-		{x = 4.1, y = 7.4},
-		{x = 5, y = 7.6},
-		{x = 5.8, y = 7.4},
-		{x = 6.4, y = 7},
-		{x = 6.6, y = 6.5},
-		{x = 6.6, y = 6},
-		{x = 6.8, y = 5.5},
-		{x = 6.8, y = 5.2},
-		{x = 6.3, y = 5.6},
-		{x = 5.7, y = 6},
-		{x = 4.9, y = 6},
-		{x = 4, y = 5.9},
-		{x = 3.1, y = 5.1},
-		{x = 2.9, y = 4.6},
-		{x = 2.9, y = 4.4},
-		{x = 2.9, y = 3.5},
-		{x = 2.6, y = 2.8},
-		{x = 2.9, y = 2.4},
-		{x = 3.2, y = 1.9},
-		{x = 3.3, y = 1.2},
-		{x = 3.1, y = 0.5},
-		{x = 2.3, y = 0},
-		{x = 1.9, y = 0.7},
-		{x = 1.6, y = 1.1},
-		{x = 2.2, y = 1.5},
-		{x = 2.8, y = 2},
-		{x = 2.9, y = 2.4}
-	},
 	["1"] = {
 		{x = 2, y = 3},
 		{x = 5, y = 0},
@@ -584,6 +378,200 @@ local lineCoords = {
 		{x = 8, y = 0},
 		{x = 2, y = 0},
         {x = 0, y = 2}
+	},
+	["~"] = {
+		{x = 8, y = 2},
+		{x = 6, y = 0},
+		{x = 2, y = 0},
+		{x = 0, y = 2},
+		{x = 0, y = 5},
+		{x = 4, y = 5},
+		{x = 4, y = 2},
+		{x = 0, y = 2},
+		{x = 0, y = 5},
+		{x = 1, y = 5},
+		{x = 1, y = 5},
+		{x = 1, y = 10},
+		{x = 3, y = 10},
+		{x = 3, y = 8},
+		{x = 6, y = 8},
+		{x = 6, y = 10},
+		{x = 8, y = 10},
+		{x = 8, y = 6},
+		{x = 10, y = 6},
+		{x = 10, y = 2},
+		{x = 8, y = 2},
+		{x = 8, y = 6}
+	},
+	["`"] = { -- this one is a picture
+		{x = 0.5, y = 0.1}, 
+		{x = 0.2, y = 0.5}, 
+		{x = 0, y = 0.8}, 
+		{x = 0.1, y = 1.6}, 
+		{x = 1.4, y = 2.7}, 
+		{x = 2.6, y = 2.8}, 
+		{x = 1.4, y = 2.7}, 
+		{x = 1.9, y = 3.8}, 
+		{x = 2.9, y = 4.4}, 
+		{x = 2.9, y = 4.6}, 
+		{x = 1.7, y = 5.7}, 
+		{x = 1.7, y = 5.9}, 
+		{x = 2, y = 5.9}, 
+		{x = 3.1, y = 5.1}, 
+		{x = 2.9, y = 4.6}, 
+		{x = 3.1, y = 5.1}, 
+		{x = 3.1, y = 5.5}, 
+		{x = 2, y = 6.5}, 
+		{x = 2, y = 6.8}, 
+		{x = 2.2, y = 6.8}, 
+		{x = 3.3, y = 6}, 
+		{x = 3.1, y = 5.5}, 
+		{x = 3.3, y = 6}, 
+		{x = 3.4, y = 6.4}, 
+		{x = 2.4, y = 7.3}, 
+		{x = 2.5, y = 7.6}, 
+		{x = 3.6, y = 6.9}, 
+		{x = 3.4, y = 6.4}, 
+		{x = 3.6, y = 6.9}, 
+		{x = 3.7, y = 7.7}, 
+		{x = 3.9, y = 8.2}, 
+		{x = 2.9, y = 9.4}, 
+		{x = 2.8, y = 9.5}, 
+		{x = 2.8, y = 9.7}, 
+		{x = 2.9, y = 9.8}, 
+		{x = 3.8, y = 9.9}, 
+		{x = 4.6, y = 9.9}, 
+		{x = 4.7, y = 9.8}, 
+		{x = 5.3, y = 9.8}, 
+		{x = 5.4, y = 9.9}, 
+		{x = 5.9, y = 9.9}, 
+		{x = 7, y = 9.8}, 
+		{x = 7, y = 9.4}, 
+		{x = 6.1, y = 8.2}, 
+		{x = 6.2, y = 7.7}, 
+		{x = 6.4, y = 7}, 
+		{x = 7.2, y = 7.6}, 
+		{x = 7.4, y = 7.4}, 
+		{x = 6.6, y = 6.5}, 
+		{x = 6.4, y = 7}, 
+		{x = 6.6, y = 6.5}, 
+		{x = 6.6, y = 6}, 
+		{x = 7.6, y = 6.7}, 
+		{x = 7.7, y = 6.4}, 
+		{x = 6.8, y = 5.5}, 
+		{x = 6.6, y = 6}, 
+		{x = 6.8, y = 5.5}, 
+		{x = 6.8, y = 5.2}, 
+		{x = 7.9, y = 5.9}, 
+		{x = 8.1, y = 5.6}, 
+		{x = 7.1, y = 4.6}, 
+		{x = 6.8, y = 4.9}, 
+		{x = 6.8, y = 5.2}, 
+		{x = 6.8, y = 4.9}, 
+		{x = 7.1, y = 4.6}, 
+		{x = 8.3, y = 3.3}, 
+		{x = 8.5, y = 2.8}, 
+		{x = 9.4, y = 2.1}, 
+		{x = 9.8, y = 1.4}, 
+		{x = 9.9, y = 1}, 
+		{x = 9.8, y = 0.5}, 
+		{x = 9.4, y = 0.1}, 
+		{x = 8.8, y = 0.5}, 
+		{x = 8.3, y = 1.1}, 
+		{x = 7.8, y = 0.5}, 
+		{x = 7.7, y = 0}, 
+		{x = 7.3, y = 0}, 
+		{x = 6.6, y = 0.6}, 
+		{x = 6.5, y = 1.2}, 
+		{x = 6.6, y = 1.9}, 
+		{x = 6.9, y = 2.3}, 
+		{x = 7.3, y = 1.7}, 
+		{x = 8.3, y = 1.1}, 
+		{x = 7.3, y = 1.7}, 
+		{x = 6.9, y = 2.3}, 
+		{x = 7.2, y = 2.8}, 
+		{x = 7.7, y = 2.9}, 
+		{x = 8.5, y = 2.8}, 
+		{x = 7.7, y = 2.9}, 
+		{x = 7.2, y = 2.8}, 
+		{x = 6.9, y = 3.4}, 
+		{x = 7, y = 4}, 
+		{x = 7.1, y = 4.6}, 
+		{x = 7, y = 4}, 
+		{x = 6.9, y = 3.4}, 
+		{x = 6.6, y = 2.8}, 
+		{x = 6.2, y = 2.4}, 
+		{x = 6.2, y = 2.1}, 
+		{x = 6.1, y = 2}, 
+		{x = 5.8, y = 2}, 
+		{x = 5.6, y = 2.2}, 
+		{x = 5.6, y = 2.4}, 
+		{x = 5.7, y = 2.5}, 
+		{x = 6.1, y = 2.5}, 
+		{x = 6.2, y = 2.4}, 
+		{x = 6.2, y = 2.1}, 
+		{x = 6.1, y = 2}, 
+		{x = 5.8, y = 2}, 
+		{x = 5, y = 2.1}, 
+		{x = 4.2, y = 2}, 
+		{x = 3.8, y = 2}, 
+		{x = 3.7, y = 2.1}, 
+		{x = 3.7, y = 2.4}, 
+		{x = 3.8, y = 2.5}, 
+		{x = 4.1, y = 2.5}, 
+		{x = 4.2, y = 2.4}, 
+		{x = 4.2, y = 2}, 
+		{x = 3.8, y = 2}, 
+		{x = 3.7, y = 2.1}, 
+		{x = 3.7, y = 2.4}, 
+		{x = 3.2, y = 3}, 
+		{x = 2.9, y = 3.5}, 
+		{x = 2.9, y = 4.4}, 
+		{x = 3.1, y = 5.1}, 
+		{x = 4, y = 5.9}, 
+		{x = 4.9, y = 6}, 
+		{x = 5.7, y = 6}, 
+		{x = 6.3, y = 5.6}, 
+		{x = 6.8, y = 5.2}, 
+		{x = 6.8, y = 5.5}, 
+		{x = 6.6, y = 6}, 
+		{x = 6, y = 6.6}, 
+		{x = 5, y = 6.8}, 
+		{x = 4, y = 6.6}, 
+		{x = 3.3, y = 6}, 
+		{x = 3.4, y = 6.4}, 
+		{x = 3.6, y = 6.9}, 
+		{x = 4.1, y = 7.4}, 
+		{x = 5, y = 7.6}, 
+		{x = 5.8, y = 7.4}, 
+		{x = 6.4, y = 7}, 
+		{x = 6.6, y = 6.5}, 
+		{x = 6.6, y = 6}, 
+		{x = 6.8, y = 5.5}, 
+		{x = 6.8, y = 5.2}, 
+		{x = 6.3, y = 5.6}, 
+		{x = 5.7, y = 6}, 
+		{x = 4.9, y = 6}, 
+		{x = 4, y = 5.9}, 
+		{x = 3.1, y = 5.1}, 
+		{x = 2.9, y = 4.6}, 
+		{x = 2.9, y = 4.4}, 
+		{x = 2.9, y = 3.5}, 
+		{x = 2.6, y = 2.8}, 
+		{x = 2.9, y = 2.4}, 
+		{x = 3.2, y = 1.9}, 
+		{x = 3.3, y = 1.2}, 
+		{x = 3.1, y = 0.5}, 
+		{x = 2.3, y = 0}, 
+		{x = 1.9, y = 0.7}, 
+		{x = 1.6, y = 1.1}, 
+		{x = 0.5, y = 0.1}, 
+		{x = 1.6, y = 1.1}, 
+		{x = 2.2, y = 1.5}, 
+		{x = 2.8, y = 2}, 
+		{x = 2.9, y = 2.4}, 
+		{x = 2.9, y = 2.4}, 
+		{x = 2.9, y = 2.4}
 	}
     -- TODO needs the rest of special chars like , . - = < > and so on?
 }
@@ -601,6 +589,27 @@ local frames = 0
 local letterSpacing = 20  -- spacing between letters
 local sizeBoost = 5
 
+local function WriteTextAction(_, _, args, data)
+    local text = table.concat(args, " ")
+    WriteText(text)
+end
+
+function widget:TextCommand(command)
+    local keyword1 = 'write_text'
+	local keyword2 = 'text_scale'
+    if (string.find(command, keyword1) == 1) then
+        local text = string.sub(command, string.len(keyword1) + 2) -- +2 to skip the space after keyword
+        WriteText(text)
+	elseif (string.find(command, keyword2) == 1) then
+		sizeBoost = tonumber(string.sub(command, string.len(keyword2) + 2))
+		if sizeBoost < 0 then sizeBoost = 5 end
+    end
+end
+
+function widget:Initialize()
+	widgetHandler:AddAction("write_text", WriteTextAction, nil, 'p')
+end
+
 function WriteText(text)
     if writingText then return end -- finish previous text first
   	local mx, my = Spring.GetMouseState()
@@ -612,8 +621,8 @@ function WriteText(text)
 
     textToWrite = text
     letterCount = string.len(text)
-    iLetter = 0
-    frames = 0
+    iLetter = 1
+    frames = 1
 
     -- this is where text starts, now we need to shift it be half height and half width
     startPosX = startPosX + math.floor((-(((#text) * letterSpacing * sizeBoost - (sizeBoost*letterSpacing*0.33)))) * 0.5)
@@ -643,20 +652,18 @@ local function DrawLetter(letter)
                     startPosY + coords[j + 1].y * sizeBoost
                 )
             end
-        --else -- this needs tweaking
-        --    Spring.Echo("Error. "..letter.." is undefined character.")
         end
     end
+    iLetter = iLetter + 1
 end
 local function DrawIt(frames)
   if (iLetter > letterCount) then
     writingText = nil
     return -- finished drawing
   else
-    if (frames > 5) and ((frames % 10) == 0) then
+    if ((frames % 10) == 0) then
       local letter = textToWrite:sub(iLetter, iLetter):upper()
       DrawLetter(letter)
-      iLetter = iLetter + 1
     end
   end
 end
