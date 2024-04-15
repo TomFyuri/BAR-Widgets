@@ -31,15 +31,15 @@ local defaultCommands = {
 	[CMD.PATROL] = true,
 	[CMD.GUARD] = true,
 	[CMD.MANUALFIRE] = true,
-	[CMD_REARM] = true,
-	[CMD_FIND_PAD] = true,
 	[CMD.MOVE] = true,
 	[CMD_RAW_MOVE] = true,
 	[CMD_UNIT_SET_TARGET] = true,
-	[CMD_UNIT_SET_TARGET_CIRCLE] = true,
+--	[CMD_UNIT_SET_TARGET_CIRCLE] = true,
 --	[CMD_RAW_BUILD] = true,
 	-- [CMD.REMOVE] = true,
 	-- [CMD.INSERT] = true,
+	-- [CMD_REARM] = true,
+	-- [CMD_FIND_PAD] = true,
 }
 
 local spGetUnitPosition = Spring.GetUnitPosition
