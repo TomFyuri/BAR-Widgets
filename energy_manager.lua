@@ -103,18 +103,52 @@ for unitDefID, unitDef in pairs(UnitDefs) do
 	end
 end
 
+local function FindPlayerIDFromTeamID(teamID)
+    local playerList = spGetPlayerList()
+    for i = 1, #playerList do
+        local playerID = playerList[i]
+        local team = select(6,spGetPlayerInfo(playerID))
+        if team == teamID then
+            return playerID
+        end
+    end
+    return nil
+end
+local function getTeamName(teamID)
+    local _, _, _, isAITeam = spGetTeamInfo(teamID)
+    if isAITeam then
+        local _, _, _, aiName = spGetAIInfo(teamID)
+        if aiName then
+            local niceName = spGetGameRulesParam('ainame_' .. teamID)
+            if niceName then
+                return niceName
+            else
+                return aiName
+            end
+        else
+            return "AI Team (" .. tostring(teamID)..")"
+        end
+    else
+        local playerID = FindPlayerIDFromTeamID(teamID)
+        if playerID then
+            local playerName, _ = spGetPlayerInfo(playerID, false)
+            return playerName
+        else
+            return "Unknown Team (" .. tostring(teamID)..")"
+        end
+    end
+end
 function GetTeamData()
-	-- just in case get team data again
-	myAllyTeamID = Spring.GetMyAllyTeamID()
-	myAllyTeamList = Spring.GetTeamList(myAllyTeamID)
-	-- grab names while we are up to it
-	for _, allyTeamID in ipairs(myAllyTeamList) do
-		if myTeamID ~= allyTeamID and spAreTeamsAllied(myTeamID, allyTeamID) then
-	    local _,playerID,_,_ = spGetTeamInfo(allyTeamID, false)
-	    local name,_ = spGetPlayerInfo(playerID, false)
-			origNames[allyTeamID] = name
-		end
-	end
+    -- just in case get team data again
+    myAllyTeamID = Spring.GetMyAllyTeamID()
+    myAllyTeamList = Spring.GetTeamList(myAllyTeamID)
+    -- grab names while we are up to it
+    for _, teamID in ipairs(myAllyTeamList) do
+        if myTeamID ~= teamID and spAreTeamsAllied(myTeamID, teamID) then
+            local name = getTeamName(teamID)
+            origNames[teamID] = name
+        end
+    end
 end
 function widget:Initialize()
   if(Spring.IsReplay() or Spring.GetSpectatingState()) then
