@@ -604,10 +604,10 @@ function widget:TextCommand(command)
     local keyword1b = 'wr'
 	local keyword2 = 'text_scale' -- or text_size ?
 	local keyword2b = 'ts'
-    if (string.find(command, keyword1) == 1) or (string.find(command, keyword1b) == 1) then
+    if (string.find(command, keyword1) == 1) then -- or (string.find(command, keyword1b) == 1) then
         local text = string.sub(command, string.len(keyword1) + 2) -- +2 to skip the space after keyword
         WriteText(text)
-	elseif (string.find(command, keyword2) == 1) or (string.find(command, keyword2b) == 1) then
+	elseif (string.find(command, keyword2) == 1) then -- or (string.find(command, keyword2b) == 1) then
 		sizeBoost = tonumber(string.sub(command, string.len(keyword2) + 2))
 		if sizeBoost < 0 then sizeBoost = 5 end
     end
