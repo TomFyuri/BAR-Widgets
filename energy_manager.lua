@@ -380,7 +380,7 @@ local function UpdateEnergy()
 										totalReceived[allyTeamID] = energyToSend + totalReceived[allyTeamID]
 										if not(supressDonationReports) and not(silentMode) then
 											if not(lessDenseReport) or (energyToSend>=1000) then
-				                spSendCommands("say a:" .. Spring.I18N('ui.playersList.chat.giveEnergy', { amount = energyToSend, name = name }))
+				                spSendCommands("say a:" .. Spring.I18N('ui.playersList.chat.giveEnergy', { amount = math.ceil(energyToSend), name = name }))
 												msgCount = msgCount + 1
 											end
 										end
