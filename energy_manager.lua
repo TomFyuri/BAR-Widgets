@@ -39,6 +39,7 @@ local myTeamID = Spring.GetMyTeamID()
 local myAllyTeamID = Spring.GetMyAllyTeamID()
 local myAllyTeamList = Spring.GetTeamList(myAllyTeamID)
 local spSendLuaRulesMsg = Spring.SendLuaRulesMsg
+local math_ceil = math.ceil
 
 local adjustSlider = true -- do you want metal makers slider automated?
 local dontStoreMoreThanThis = 9000 -- all energy beyond 9000 will be turned into metal
@@ -380,7 +381,7 @@ local function UpdateEnergy()
 										totalReceived[allyTeamID] = energyToSend + totalReceived[allyTeamID]
 										if not(supressDonationReports) and not(silentMode) then
 											if not(lessDenseReport) or (energyToSend>=1000) then
-				                spSendCommands("say a:" .. Spring.I18N('ui.playersList.chat.giveEnergy', { amount = math.ceil(energyToSend), name = name }))
+				                spSendCommands("say a:" .. Spring.I18N('ui.playersList.chat.giveEnergy', { amount = math_ceil(energyToSend), name = name }))
 												msgCount = msgCount + 1
 											end
 										end
