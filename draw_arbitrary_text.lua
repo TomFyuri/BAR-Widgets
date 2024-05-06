@@ -610,7 +610,7 @@ function widget:TextCommand(command)
 	elseif (string.find(command, keyword2) == 1) then
 		sizeBoost = tonumber(string.sub(command, string.len(keyword2) + 2))
 		if sizeBoost < 0 then sizeBoost = 5 end
-    else (string.find(command, keyword1b) == 1) then
+    elseif (string.find(command, keyword1b) == 1) then
         local text = string.sub(command, string.len(keyword1b) + 2) -- +2 to skip the space after keyword
         WriteText(text)
 	elseif (string.find(command, keyword2b) == 1) then
