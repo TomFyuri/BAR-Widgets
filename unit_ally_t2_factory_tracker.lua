@@ -167,7 +167,7 @@ function widget:UnitCreated(unitID, unitDefID, unitTeam)
               bestBuildProgress = 0
             end
             if (bestBuildProgress < 1) then
-              spMarkerAddPoint(x, 0, z, "Note: There is already an antinuke within "..ANTI_NUKE_RANGE.." units of this one. (Construction: "..(bestBuildProgress*100).."%)", global_pings)
+              spMarkerAddPoint(x, 0, z, "Note: There is already an antinuke within "..ANTI_NUKE_RANGE.." units of this one. (Construction: "..math.floor(bestBuildProgress * 100).."%)", global_pings)
             else
               if (bestMissiles > 0) then
                 spMarkerAddPoint(x, 0, z, "Note: There is already an antinuke within "..ANTI_NUKE_RANGE.." units of this one. (Stockpiled: "..bestMissiles..")", global_pings)
