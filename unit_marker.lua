@@ -353,7 +353,7 @@ local function MarkUnit(unitID, unitDefID, teamID)
 				t3_unit_list[#t3_unit_list+1] = unitID
 				t3_unit_count = t3_unit_count+1
 				
-				if unitPings[unitID] and unitPings[unitID] < t3_unit_pings_limit then
+				if unitPings[unitID] and unitPings[unitID] > t3_unit_pings_limit then
 					return -- no more than "t3_unit_pings_limit" per each t3 unit
 				end
 			end
