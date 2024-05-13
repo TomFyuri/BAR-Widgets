@@ -1,15 +1,15 @@
 function widget:GetInfo() return {
 	name    = "Unit Marker - alternative",
-	desc    = "[v1.0.1] Marks spotted units of interest. Updates location and build progress.",
+	desc    = "[v1.0.2] Marks spotted units of interest. Updates location and build progress.",
 	author  = "Sprung, rollmops, Tom Fyuri",
-	date    = "2023",
+	date    = "2024",
 	license = "GNU GPL v2",
 	layer   = 0,
 	enabled = true,
 } end
 
 -- how does this widget work:
--- it will automatically mark first 20 t3 units (further t3 units are not marked)
+-- it will automatically mark first 10 t3 units (further t3 units are not marked) - each t3 unit only has a limit of 3 pings maximum, no more.
 -- it will mark first air raid
 -- it will mark first com drop
 -- it will mark all gremlins once
@@ -84,6 +84,7 @@ local frames_defer = 15
 
 local t3_unit_count = 0
 local t3_unit_limit = 10
+local t3_unit_pings_limit = 3 -- each unique unit will only get 3 pings, if the unit is still alive and got more than 3 pings - no more pings
 local t3_unit_list = {}
 local t3_unit_defs = {
 	UnitDefNames.corkorg.id,
@@ -151,6 +152,7 @@ local gunshipUnitDefIDs = {
 	UnitDefNames.corape.id,
 }
 local airPlanesFound = {}
+local unitPings = {}
 
 local armfleaDefID = UnitDefNames.armflea.id
 local corfavDefID = UnitDefNames.corfav.id
@@ -350,8 +352,11 @@ local function MarkUnit(unitID, unitDefID, teamID)
 			if not duplicate then
 				t3_unit_list[#t3_unit_list+1] = unitID
 				t3_unit_count = t3_unit_count+1
+				
+				if unitPings[unitID] and unitPings[unitID] < t3_unit_pings_limit then
+					return -- no more than "t3_unit_pings_limit" per each t3 unit
+				end
 			end
-
 			-- Exit the loop since the unitDefID has been found
 			break
 		end
@@ -412,6 +417,8 @@ local function MarkUnit(unitID, unitDefID, teamID)
 			spMarkerErasePosition(lastPos[unitID][1], lastPos[unitID][2], lastPos[unitID][3])
 			markersToMake[unitID] = { x, y, z, markerText, frames_defer }
 		end
+		if unitPings[unitID] == nil then unitPings[unitID] = 0 end
+		unitPings[unitID] = unitPings[unitID] + 1
 
 		-- save the text and position of the marker as last known.
 		lastPos[unitID] = {x, y, z}
@@ -486,4 +493,7 @@ function widget:UnitDestroyed(unitID, unitDefID, unitTeam)
 		spMarkerErasePosition(lastPos[unitID][1], lastPos[unitID][2], lastPos[unitID][3])
 	end
 	lastPos[unitID] = nil
+	if unitPings[unitID] then
+		unitPings[unitID] = nil
+	end
 end
