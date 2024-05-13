@@ -82,6 +82,8 @@ local lastPos = {}
 local markersToMake = {}
 local frames_defer = 15
 
+local scout_pings = 0
+local scout_limit = 20
 local t3_unit_count = 0
 local t3_unit_limit = 10
 local t3_unit_pings_limit = 3 -- each unique unit will only get 3 pings, if the unit is still alive and got more than 3 pings - no more pings
@@ -366,7 +368,7 @@ local function MarkUnit(unitID, unitDefID, teamID)
 		if gremlinAutoIgnore[unitID] then return end -- no notify gremlins more than once each
 		gremlinAutoIgnore[unitID] = true
 	end
-	if (spGetGameSeconds() > WARN_ABOUT_SCOUTS_DURATION) then
+	if (spGetGameSeconds() > WARN_ABOUT_SCOUTS_DURATION) or scout_pings >= scout_limit then
 		warnAboutScouts = false
 		activeDefID[armfleaDefID] = nil
 		unitList[armfleaDefID] = nil
@@ -376,6 +378,7 @@ local function MarkUnit(unitID, unitDefID, teamID)
 		unitList[armfavDefID] = nil
 		if (isScout(unitDefID)) then return end
 	end
+	if warnAboutScouts and (isScout(unitDefID)) then scout_pings = scout_pings + 1 end
 
 	local x, y, z = spGetUnitPosition(unitID)
 	--spEcho("DEBUG 2: "..unitDefID)
