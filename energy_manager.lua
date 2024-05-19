@@ -215,11 +215,11 @@ local function AdjustMMLevelSlider()
 		local energyLimit = dontStoreMoreThanThis
 		if (myCalamityCount > 0) then energyLimit = 30000 end
 		conversionRate = math_floor(energyLimit/eStorMy*100)
-		if conversionRate < 12 then
-			conversionRate = 12
+		if conversionRate < 15 then
+			conversionRate = 15
 		end
-		if conversionRate > 80 then
-			conversionRate = 80
+		if conversionRate > 75 then
+			conversionRate = 75
 		end
 
 		--spEcho("debug: too much energy in storage "..eStorMy.."... setting slider to "..conversionRate)
