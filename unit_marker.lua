@@ -378,7 +378,11 @@ local function MarkUnit(unitID, unitDefID, teamID)
 		unitList[armfavDefID] = nil
 		if (isScout(unitDefID)) then return end
 	end
-	if warnAboutScouts and (isScout(unitDefID)) then scout_pings = scout_pings + 1 end
+	if warnAboutScouts and (isScout(unitDefID)) then
+		local _, _, _, _, buildProgress = spGetUnitHealth(unitID)
+		if buildProgress < 1 then return end -- ignore not finished scouts
+		scout_pings = scout_pings + 1
+	end
 
 	local x, y, z = spGetUnitPosition(unitID)
 	--spEcho("DEBUG 2: "..unitDefID)
