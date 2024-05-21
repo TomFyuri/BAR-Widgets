@@ -83,7 +83,7 @@ local markersToMake = {}
 local frames_defer = 15
 
 local scout_pings = 0
-local scout_limit = 20
+local scout_limit = 10
 local t3_unit_count = 0
 local t3_unit_limit = 10
 local t3_unit_pings_limit = 3 -- each unique unit will only get 3 pings, if the unit is still alive and got more than 3 pings - no more pings
@@ -164,7 +164,7 @@ local function isScout(unitDefID)
 end
 local warnedAboutCalamity = false
 local warnAboutScouts = true
-local WARN_ABOUT_SCOUTS_DURATION = 60*3 -- 3 minutes
+local WARN_ABOUT_SCOUTS_DURATION = 60*2 + 30 -- 2 and half minutes
 
 -- for additional feature: for markers of building in progress, add the game time at which the specified building progress was spotted
 local spGetGameSeconds = Spring.GetGameSeconds
