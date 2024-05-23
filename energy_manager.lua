@@ -462,6 +462,11 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
 		end
 	end
 end
+function widget:UnitTaken(unitID, unitDefID, oldTeam, newTeam)
+	if oldTeam == myTeamID then
+		widget:UnitDestroyed(unitID, unitDefID, oldTeam, nil, nil, nil)
+	end
+end
 function widget:GameFrame(frame)
 		if spGetSpectatingState() then return end
     if (frame % updateFrameRate) == 1 then
