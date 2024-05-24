@@ -61,10 +61,6 @@ local allyEnergyMinSendAmount = 200
 
 local myCalamityCount = 0
 
-local armvulcDefID = UnitDefNames.armvulc.id
-local corbuzzDefID = UnitDefNames.corbuzz.id
-local legstarfallDefID = UnitDefNames.legstarfall.id
-
 -- update rate is - every second
 local updateRatePerSecond = 1
 local updateFrameRate = updateRatePerSecond*30
@@ -433,8 +429,9 @@ local function UpdateEnergy()
     end
 end
 
+local legstarfallDefID = UnitDefNames.legstarfall and UnitDefNames.legstarfall.id or nil
 local function isCalamity(unitDefID)
-	return ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID) or (legstarfallDefID == unitDefID))
+	return unitDefID and ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID) or (legstarfallDefID == unitDefID))
 end
 function widget:UnitGiven(unitID, unitDefID, newTeam, oldTeam)
 	if newTeam == myTeamID then
