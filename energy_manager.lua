@@ -3,7 +3,7 @@ function widget:GetInfo()
 		name         = "Energy Manager", -- more like anti-stall-help-for-newbies
 		desc         = "Gives allies in trouble some energy. Also can adjust your energy-to-metal slider automatically.",
 		author       = "Tom Fyuri",
-		date         = "2023",
+		date         = "2024",
 		license      = "GNU GPL, v2 or later",
 		layer        = 0,
 		enabled      = true
@@ -63,6 +63,7 @@ local myCalamityCount = 0
 
 local armvulcDefID = UnitDefNames.armvulc.id
 local corbuzzDefID = UnitDefNames.corbuzz.id
+local legstarfallDefID = UnitDefNames.legstarfall.id
 
 -- update rate is - every second
 local updateRatePerSecond = 1
@@ -239,10 +240,10 @@ local function AdjustMMLevelSlider()
 end
 local function UpdateEnergy()
     --local currentIncome, currentStorage, currentPull = spGetTeamResources(myTeamID, "energy")
-    local eCurrMy, eStorMy,_ , eIncoMy, eExpeMy, eShare,eSent,eReceived = spGetTeamResources(myTeamID, "energy")
+    local eCurrMy, eStorMy,_ , eIncoMy, eExpeMy, _,eSent,eReceived = spGetTeamResources(myTeamID, "energy")
     local teamList = myAllyTeamList
-    local currentIncome = eIncoMy + eShare+eSent+eReceived -- - eExpeMy
-    local currentIncomeWithLoss = eIncoMy + eShare+eSent+eReceived - eExpeMy
+    local currentIncome = eIncoMy -eSent+eReceived -- - eExpeMy
+    local currentIncomeWithLoss = eIncoMy -eSent+eReceived - eExpeMy
     local currentStorage = eCurrMy
     local alliesCount = 0
     local energyThreshold = energyThresholdDefault
@@ -274,7 +275,7 @@ local function UpdateEnergy()
 				end
 		end
 		-- maybe give way at least 2k energy once I'm at 18k+ income? don't if I have calamity?
-
+	if (energyPool < 1) then return end
     -- 10% of my total energy, so if its 1500, then I can share 150 freely per second
     -- or 750 per "update"! so in this case, one ally will get 500 energy
 		if debug then
@@ -433,7 +434,7 @@ local function UpdateEnergy()
 end
 
 local function isCalamity(unitDefID)
-	return ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID))
+	return ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID) or (legstarfallDefID == unitDefID))
 end
 function widget:UnitGiven(unitID, unitDefID, newTeam, oldTeam)
 	if newTeam == myTeamID then
