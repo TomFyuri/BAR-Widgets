@@ -98,8 +98,9 @@ local gremlinAutoIgnore = {}
 
 local armvulcDefID = UnitDefNames.armvulc.id
 local corbuzzDefID = UnitDefNames.corbuzz.id
+local legstarfallDefID = UnitDefNames.legstarfall and UnitDefNames.legstarfall.id or nil
 local function isCalamity(unitDefID)
-	return ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID))
+	return unitDefID and ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID) or (legstarfallDefID == unitDefID))
 end
 
 local isCommander = {}

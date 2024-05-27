@@ -3,7 +3,7 @@ function widget:GetInfo()
         name      = "Unit Ally Buildings Tracker",
         desc      = "Notify allies of someone going T2 factory (+LRRA +P +AN).",
         author    = "Tom Fyuri",
-        date      = "2023",
+        date      = "2024",
         license   = "GNU GPL, v2 or later",
         layer     = 1,
         enabled   = true
@@ -95,8 +95,9 @@ local allyPinpointerCounter = 0
 local ANTI_NUKE_RANGE = 750
 local GAME_FRAME_THRESHOLD = 30 * 60 * 30
 
+local legstarfallDefID = UnitDefNames.legstarfall and UnitDefNames.legstarfall.id or nil
 local function isCalamity(unitDefID)
-  return ((corbuzzDefID == unitDefID) or (armvulcDefID == unitDefID))
+	return unitDefID and ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID) or (legstarfallDefID == unitDefID))
 end
 local function isPinPointer(unitDefID)
   return ((armtargDefID == unitDefID) or (cortargDefID == unitDefID))
