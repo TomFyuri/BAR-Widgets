@@ -1,6 +1,6 @@
 function widget:GetInfo() return {
 	name    = "Unit Marker - alternative",
-	desc    = "[v1.0.2] Marks spotted units of interest. Updates location and build progress.",
+	desc    = "[v1.0.3] Marks spotted units of interest. Updates location and build progress.",
 	author  = "Sprung, rollmops, Tom Fyuri",
 	date    = "2024",
 	license = "GNU GPL v2",
@@ -41,6 +41,7 @@ local unitlistNames = {
 	armsilo = { mark_each_appearance = true, show_owner = true, },
 	corbuzz = { mark_each_appearance = true, show_owner = true, },
 	armvulc = { mark_each_appearance = true, show_owner = true, },
+	legstarfall = { mark_each_appearance = true, show_owner = true, },
 
 	-- ? sorta mini nuke?
 	cortron = MARK_EACH,
@@ -49,6 +50,7 @@ local unitlistNames = {
 	-- anti-nuke?
 	corfmd = MARK_EACH,
 	armamd = MARK_EACH,
+
 	-- mobile
 	armscab = MARK_EACH,
 	cormabm = MARK_EACH,
@@ -178,9 +180,11 @@ function widget:Initialize()
 end
 
 for name, data in pairs(unitlistNames) do
-	activeDefID[UnitDefNames[name].id] = true
-	unitList[UnitDefNames[name].id] = data
-	--spEcho("Activated: "..UnitDefNames[name].name.." - "..UnitDefNames[name].id)
+	if UnitDefNames[name] then
+		activeDefID[UnitDefNames[name].id] = true
+		unitList[UnitDefNames[name].id] = data
+		--spEcho("Activated: "..UnitDefNames[name].name.." - "..UnitDefNames[name].id)
+	end
 end
 -- add scouts temporarily
 activeDefID[armfleaDefID] = true

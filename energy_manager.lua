@@ -60,6 +60,7 @@ local allyEnergySendAmount = 500
 local allyEnergyMinSendAmount = 200
 
 local myCalamityCount = 0
+local myStarfallCount = 0
 
 -- update rate is - every second
 local updateRatePerSecond = 1
@@ -207,32 +208,25 @@ local function GetAIName(teamID)
     return Spring.I18N('ui.playersList.aiName', { name = name })
 end
 local function AdjustMMLevelSlider()
-		if not adjustSlider then return end
-		local eCurrMy, eStorMy,_ , eIncoMy, eExpeMy, eShare,eSent,eReceived = spGetTeamResources(myTeamID, "energy")
-		local energyLimit = dontStoreMoreThanThis
-		if (myCalamityCount > 0) then energyLimit = 30000 end
-		conversionRate = math_floor(energyLimit/eStorMy*100)
-		if conversionRate < 15 then
-			conversionRate = 15
-		end
-		if conversionRate > 75 then
-			conversionRate = 75
-		end
+	if not adjustSlider then return end
+	local eCurrMy, eStorMy,_ , eIncoMy, eExpeMy, eShare,eSent,eReceived = spGetTeamResources(myTeamID, "energy")
+	local energyLimit = dontStoreMoreThanThis
+	if (myStarfallCount > 0) then energyLimit = 400000
+	elseif (myCalamityCount > 0) then energyLimit = 30000 end
+	local conversionRate = math_floor(energyLimit/eStorMy*100)
+	if conversionRate < 15 then
+		conversionRate = 15
+	end
+	if conversionRate > 75 then
+		conversionRate = 75
+	end
 
-		--spEcho("debug: too much energy in storage "..eStorMy.."... setting slider to "..conversionRate)
-		spSendLuaRulesMsg(string.format(string.char(137) .. '%i', conversionRate))
+	--spEcho("debug: too much energy in storage "..eStorMy.."... setting slider to "..conversionRate)
+	spSendLuaRulesMsg(string.format(string.char(137) .. '%i', conversionRate))
 
-		-- update GUI (currently required patching of stock widget)
-		if WG['topbar'] and WG['topbar'].updateTopBarEnergy then
-			WG['topbar'].updateTopBarEnergy(conversionRate)
-		end
-		-- here's the thing, gui_top_bar.lua widget should be patched to include this code on line 2152:
-		--[[
-		WG['topbar'].updateTopBarEnergy = function(value)
-			mmLevel = value
-			updateResbar('energy')
-		end]]
-		-- if not, you do not get visual update of the slider, the widget works though
+	if WG['topbar'] and WG['topbar'].updateTopBarEnergy then
+		WG['topbar'].updateTopBarEnergy(conversionRate)
+	end
 end
 local function UpdateEnergy()
     --local currentIncome, currentStorage, currentPull = spGetTeamResources(myTeamID, "energy")
@@ -243,42 +237,42 @@ local function UpdateEnergy()
     local currentStorage = eCurrMy
     local alliesCount = 0
     local energyThreshold = energyThresholdDefault
-		local storageThreshold = storageThresholdDefault
+	local storageThreshold = storageThresholdDefault
     local allyEnergyIncomeMax = allyEnergyIncomeMaxDefault
-		local storagePart = storagePartDefault
+	local storagePart = storagePartDefault
     if (currentIncome >= 3000) then
       energyThreshold = 2000 -- ?
       allyEnergyIncomeMax = 2000
 			-- twice the limits if I can afford it, more if I have absurd income
     end
-		if (currentIncomeWithLoss < 0) then
-				storageThreshold = storageThreshold + currentIncomeWithLoss -- so basically I actually have something to give?
-		end
-		if (myCalamityCount > 0) then
-				if (storageThreshold < 30000) then
-						storageThreshold = 30000
-				end
-		end
+	if (currentIncomeWithLoss < 0) then
+			storageThreshold = storageThreshold + currentIncomeWithLoss -- so basically I actually have something to give?
+	end
+	if (myStarfallCount > 0) and (storageThreshold < 400000) then
+		storageThreshold = 400000
+	elseif (myCalamityCount > 0) and (storageThreshold < 30000) then
+		storageThreshold = 30000
+	end
     --spEcho('ok?')-- '..currentIncome..' '..currentStorage..' '..eStorMy*0.9..' '..eCurrMy)
     -- Calculate the energy available for distribution
     --spEcho('lottery active')
     local energyPool = math_floor((eCurrMy-eExpeMy) * storagePart) -- * updateRatePerSecond
-		if (currentIncome>=6000) then
-				allyEnergyIncomeMax = math_floor(currentIncome/3)
-				if (eStorMy >= 9000) and (energyPool < 1000) then
-						energyPool = 1000
-				-- minimum give away moment is now higher, basically a single fusion to give someone to leg up
-				end
-		end
+	if (currentIncome>=6000) then
+			allyEnergyIncomeMax = math_floor(currentIncome/3)
+			if (eStorMy >= 9000) and (energyPool < 1000) then
+					energyPool = 1000
+			-- minimum give away moment is now higher, basically a single fusion to give someone to leg up
+			end
+	end
 		-- maybe give way at least 2k energy once I'm at 18k+ income? don't if I have calamity?
 	if (energyPool < 1) then return end
     -- 10% of my total energy, so if its 1500, then I can share 150 freely per second
     -- or 750 per "update"! so in this case, one ally will get 500 energy
-		if debug then
-			debug_text = ""
-			--debug_text = math_floor(eCurrMy).." "..math_floor(eStorMy).." "..math_floor(eIncoMy).." "..math_floor(eExpeMy).." "..math_floor(eShare).." "..math_floor(eSent).." "..math_floor(eReceived).."\n"
-			debug_text = debug_text.."CurInc: "..math_floor(currentIncome).." eThres: "..math_floor(energyThreshold).."\n".."eStor: "..math_floor(currentStorage).." eStorThres: "..math_floor(storageThreshold).."\n".."CunIncWLoss: "..math_floor(currentIncomeWithLoss).." ".."ePool: "..energyPool
-		end
+	if debug then
+		debug_text = ""
+		--debug_text = math_floor(eCurrMy).." "..math_floor(eStorMy).." "..math_floor(eIncoMy).." "..math_floor(eExpeMy).." "..math_floor(eShare).." "..math_floor(eSent).." "..math_floor(eReceived).."\n"
+		debug_text = debug_text.."CurInc: "..math_floor(currentIncome).." eThres: "..math_floor(energyThreshold).."\n".."eStor: "..math_floor(currentStorage).." eStorThres: "..math_floor(storageThreshold).."\n".."CunIncWLoss: "..math_floor(currentIncomeWithLoss).." ".."ePool: "..energyPool
+	end
 		-- Check if energy income and storage meet the thresholds or I excess anyway
     if ((currentIncome > energyThreshold) or ((eStorMy*0.9>(eCurrMy-eExpeMy)) and (currentIncomeWithLoss>500))) and currentStorage > storageThreshold then
 			-- never send energy if I have less than storageThreshold for myself
@@ -286,152 +280,157 @@ local function UpdateEnergy()
         local alliesReceivers = {}
         --for _, wplayer in ipairs(spGetPlayerList()) do
         for _, allyTeamID in ipairs(teamList) do
-						if myTeamID ~= allyTeamID and spAreTeamsAllied(myTeamID, allyTeamID) then
-					  --local name,_,_,allyTeamID = spGetPlayerInfo(wplayer, false)
+			if myTeamID ~= allyTeamID and spAreTeamsAllied(myTeamID, allyTeamID) then
+			--local name,_,_,allyTeamID = spGetPlayerInfo(wplayer, false)
             --if (name) and (allyTeamID) then
             --  spEcho(tostring(name)..' '..tostring(allyTeamID)..' '..tostring(myTeamID))
             --end
             local _,playerID,isDead,isAI = spGetTeamInfo(allyTeamID, false)
             local name,active = spGetPlayerInfo(playerID, false)
         		if isAI then
-              name = GetAIName(allyTeamID)
+              	name = GetAIName(allyTeamID)
             end
-						if totalReceived[allyTeamID] == nil then
-							totalReceived[allyTeamID] = 0
-							if origNames[allyTeamID] == nil then
-								origNames[allyTeamID] = name -- fallback in case widget restarted
-							end
-						end
-						if debug then
-							debug_text = debug_text.."\n".."AllyTeam: "..name.." dead:"..tostring(isDead).." active: "..tostring(active)
-						end
+			if totalReceived[allyTeamID] == nil then
+				totalReceived[allyTeamID] = 0
+				if origNames[allyTeamID] == nil then
+					origNames[allyTeamID] = name -- fallback in case widget restarted
+				end
+			end
+			if debug then
+				debug_text = debug_text.."\n".."AllyTeam: "..name.." dead:"..tostring(isDead).." active: "..tostring(active)
+			end
             --spEcho(tostring(isDead)..' '..tostring(name)..' '..tostring(active)..' '..tostring(allyTeamID)..' '..tostring(myTeamID))
             if not(isDead) and active and name then
-                local aCurrMy, aStorMy, _, aIncoMy, aExpeMy, aShare,aSent,aReceived = spGetTeamResources(allyTeamID, "energy")
-								local allyEnergyThreshold = spGetTeamRulesParam(allyTeamID, 'mmLevel')
-								if (allyEnergyThreshold == nil) then allyEnergyThreshold = allyEnergyThresholdDefault
-								else
-								--if (allyEnergyThreshold > 1) then
-								--	allyEnergyThreshold = allyEnergyThreshold/100
-									allyEnergyThreshold = allyEnergyThreshold - 0.02
-									if (allyEnergyThreshold > 0.5) then
-										allyEnergyThreshold = 0.5
-									end
-								end
-								local allyIncome = aIncoMy + aShare+aSent+aReceived
+				local aCurrMy, aStorMy, _, aIncoMy, aExpeMy, aShare,aSent,aReceived = spGetTeamResources(allyTeamID, "energy")
+				local allyEnergyThreshold = spGetTeamRulesParam(allyTeamID, 'mmLevel')
+				if (allyEnergyThreshold == nil) then allyEnergyThreshold = allyEnergyThresholdDefault
+				else
+				--if (allyEnergyThreshold > 1) then
+				--	allyEnergyThreshold = allyEnergyThreshold/100
+					allyEnergyThreshold = allyEnergyThreshold - 0.02
+					if (allyEnergyThreshold > 0.5) then
+						allyEnergyThreshold = 0.5
+					end
+				end
+				local allyIncome = aIncoMy + aShare+aSent+aReceived
                 local allyIncomeWithLoss = aIncoMy + aShare+aSent+aReceived - aExpeMy
-								if debug then
-									debug_text = debug_text.."\n".."aIncWLoss: "..math_floor(allyIncomeWithLoss).." aIncMax: "..math_floor(allyEnergyIncomeMax).." aCurr: "..math_floor(aCurrMy-aExpeMy).." aThres: "..math_floor(allyEnergyThreshold * aStorMy).." mmLevel:"..math_floor(allyEnergyThreshold*100).."%"
-								end
+				if debug then
+					debug_text = debug_text.."\n".."aIncWLoss: "..math_floor(allyIncomeWithLoss).." aIncMax: "..math_floor(allyEnergyIncomeMax).." aCurr: "..math_floor(aCurrMy-aExpeMy).." aThres: "..math_floor(allyEnergyThreshold * aStorMy).." mmLevel:"..math_floor(allyEnergyThreshold*100).."%"
+				end
                 if allyIncomeWithLoss < allyEnergyIncomeMax --[[and ((aCurrMy) < (allyEnergyThreshold * aStorMy))]] and ((aCurrMy-aExpeMy)<(aStorMy*allyEnergyThreshold)) and allyIncome <= currentIncome --[[and ((aCurrMy-aExpeMy)<(aStorMy*0.9))]] then
-										-- if they have more income then me, they dont need donations...
+					-- if they have more income then me, they dont need donations...
                     -- if they have fusion - no donations required, lets be serious
                     alliesCount = alliesCount + 1
                     alliesReceivers[alliesCount] = {allyTeamID, name}
-										if debug then
-											debug_text = debug_text.." - OK!"
-										end
-                elseif debug then
-									debug_text = debug_text.." - NOT OK!"
-								end
+					if debug then
+						debug_text = debug_text.." - OK!"
+					end
+              	elseif debug then
+					debug_text = debug_text.." - NOT OK!"
+				end
             end
         end end
-				if debug then
-					debug_text = debug_text.."\nGiveCount: "..alliesCount..".\nGave so far: "..math_floor(energyDonated)
 
-					local top3Allies,allyCount = getTop3Allies()
-					if (allyCount > 0) then
-						debug_text = debug_text.."\nTop "..allyCount.." Allies who had most energy donations received:"
-						for _, allyTeamID in ipairs(top3Allies) do
-						    debug_text = debug_text.."\nName: ".. origNames[allyTeamID] .." received: ".. math_floor(totalReceived[allyTeamID])  .." e."
-						end
-					end
+		if debug then
+			debug_text = debug_text.."\nGiveCount: "..alliesCount..".\nGave so far: "..math_floor(energyDonated)
+
+			local top3Allies,allyCount = getTop3Allies()
+			if (allyCount > 0) then
+				debug_text = debug_text.."\nTop "..allyCount.." Allies who had most energy donations received:"
+				for _, allyTeamID in ipairs(top3Allies) do
+					debug_text = debug_text.."\nName: ".. origNames[allyTeamID] .." received: ".. math_floor(totalReceived[allyTeamID])  .." e."
 				end
+			end
+		end
 
         --spEcho('valid allies '..alliesCount)
         -- Distribute energy to eligible allies
         if alliesCount > 0 then
             local energyToSend = math.max(allyEnergyMinSendAmount, math_floor(energyPool / alliesCount))
             if (energyToSend > (eCurrMy-eExpeMy)) then energyToSend = eCurrMy-eExpeMy-50 end -- shouldn't happen
-						if (energyToSend < allyEnergyMinSendAmount) then return end -- cant send min amount right away
+			if (energyToSend < allyEnergyMinSendAmount) then return end -- cant send min amount right away
 
             for i=1, alliesCount do
-            --for _, allyTeamID in ipairs(teamList) do
-                local allyTeamID = alliesReceivers[i][1]
-                local name = alliesReceivers[i][2]
-                local aCurrMy, aStorMy, _, _, _, _,_,_ = spGetTeamResources(allyTeamID, "energy")
-								local allyEnergyThreshold = spGetTeamRulesParam(allyTeamID, 'mmLevel')
-								if (allyEnergyThreshold == nil) then allyEnergyThreshold = allyEnergyThresholdDefault
-								else
-								--if (allyEnergyThreshold > 1) then
-								--	allyEnergyThreshold = allyEnergyThreshold/100
-									allyEnergyThreshold = allyEnergyThreshold - 0.02
-									if (allyEnergyThreshold > 0.5) then
-										allyEnergyThreshold = 0.5 -- more than 50% in storage? you'll be fine...
-									end
-								end
-								if (allyEnergyThreshold >= 0.05) then -- if ally somehow managed to set their mmLevel to 7% or below - well, never give them energy, they obviously don't need any.
+				--for _, allyTeamID in ipairs(teamList) do
+				local allyTeamID = alliesReceivers[i][1]
+				local name = alliesReceivers[i][2]
+				local aCurrMy, aStorMy, _, _, _, _,_,_ = spGetTeamResources(allyTeamID, "energy")
+				local allyEnergyThreshold = spGetTeamRulesParam(allyTeamID, 'mmLevel')
+				if (allyEnergyThreshold == nil) then allyEnergyThreshold = allyEnergyThresholdDefault
+				else
+				--if (allyEnergyThreshold > 1) then
+				--	allyEnergyThreshold = allyEnergyThreshold/100
+					allyEnergyThreshold = allyEnergyThreshold - 0.02
+					if (allyEnergyThreshold > 0.5) then
+						allyEnergyThreshold = 0.5 -- more than 50% in storage? you'll be fine...
+					end
+				end
+				if (allyEnergyThreshold >= 0.05) then -- if ally somehow managed to set their mmLevel to 7% or below - well, never give them energy, they obviously don't need any.
                 -- simply being, dont send MORE than storage capacity
                 if ((energyToSend+aCurrMy) >= (aStorMy*allyEnergyThreshold)) then
-                  energyToSend = (aStorMy*allyEnergyThreshold) - aCurrMy -- never overfill
+					energyToSend = (aStorMy*allyEnergyThreshold) - aCurrMy -- never overfill
                 end
-								if (energyToSend > allyEnergyMinSendAmount) then -- cant send min amount right
-										energyDonated = energyDonated + energyToSend
-		                spShareResources(allyTeamID, "energy", energyToSend)
-										totalReceived[allyTeamID] = energyToSend + totalReceived[allyTeamID]
-										if not(supressDonationReports) and not(silentMode) then
-											if not(lessDenseReport) or (energyToSend>=1000) then
-								spSendLuaRulesMsg('msg:ui.playersList.chat.giveEnergy:amount='..math_ceil(energyToSend)..':name='..name)
-				                --spSendCommands("say a:" .. Spring.I18N('ui.playersList.chat.giveEnergy', { amount = math_ceil(energyToSend), name = name }))
-												msgCount = msgCount + 1
-											end
-										end
-		                energyPool = energyPool - energyToSend
-		                if (energyPool < allyEnergyMinSendAmount) then
-		                    break
-		                end
-								end end
+				if (energyToSend > allyEnergyMinSendAmount) then -- cant send min amount right
+					energyDonated = energyDonated + energyToSend
+					spShareResources(allyTeamID, "energy", energyToSend)
+					totalReceived[allyTeamID] = energyToSend + totalReceived[allyTeamID]
+					if not(supressDonationReports) and not(silentMode) then
+						if not(lessDenseReport) or (energyToSend>=1000) then
+							spSendLuaRulesMsg('msg:ui.playersList.chat.giveEnergy:amount='..math_ceil(energyToSend)..':name='..name)
+							--spSendCommands("say a:" .. Spring.I18N('ui.playersList.chat.giveEnergy', { amount = math_ceil(energyToSend), name = name }))
+							msgCount = msgCount + 1
+						end
+					end
+					energyPool = energyPool - energyToSend
+					if (energyPool < allyEnergyMinSendAmount) then
+						break
+					end
+				end end
             end
         end
 
-				if not silentMode then
-				if not donationNoted and (energyDonated >= 10000 or msgCount>=50) then
-						donationNoted = true
-						spSendCommands("say a:I have donated "..math_floor(energyDonated).." E so far, using 10% of my spare E income. Consider making your own fusion/afus.")
-						spSendCommands("say a:As long as I have spare E, I'll always give you some E every second. Forget about E-stalling. ;)")
-				end
-				if not warningNoted and (energyDonated >= 25000 or msgCount>=100) then
-						warningNoted = true
-						spSendCommands("say a:I have donated "..math_floor(energyDonated).." E! <1000 E donations are now given silently, you are still getting them, no worries! ;)")
-						-- TODO code so that donation msgs are instead 'in bulk' instead of every second spam...
-						lessDenseReport = true
-				end
-				if energyDonated >= energyDonatedMilestone then
-						energyDonatedMilestone = energyDonatedMilestone+energyDonatedMilestoneStep
-						local top3Allies,allyCount = getTop3Allies()
-						if (allyCount > 0) then -- hmm ?
-							local lolText = ""
-							for _, allyTeamID in ipairs(top3Allies) do
-									if (totalReceived[allyTeamID] > 0) then
-											lolText = lolText.. " ".. origNames[allyTeamID] .." [".. math_floor(totalReceived[allyTeamID])  .." E]"
-									end
-							end
-							spSendCommands("say a:I have donated "..math_floor(energyDonated).." E."..lolText) -- Let's go!")
-						else
-							spSendCommands("say a:I have donated "..math_floor(energyDonated).." E.") -- Let's go!")
+		if not silentMode then
+			if not donationNoted and (energyDonated >= 10000 or msgCount>=50) then
+					donationNoted = true
+					spSendCommands("say a:I have donated "..math_floor(energyDonated).." E so far, using 10% of my spare E income. Consider making your own fusion/afus.")
+					spSendCommands("say a:As long as I have spare E, I'll always give you some E every second. Forget about E-stalling. ;)")
+			end
+			if not warningNoted and (energyDonated >= 25000 or msgCount>=100) then
+					warningNoted = true
+					spSendCommands("say a:I have donated "..math_floor(energyDonated).." E! <1000 E donations are now given silently, you are still getting them, no worries! ;)")
+					-- TODO code so that donation msgs are instead 'in bulk' instead of every second spam...
+					lessDenseReport = true
+			end
+			if energyDonated >= energyDonatedMilestone then
+					energyDonatedMilestone = energyDonatedMilestone+energyDonatedMilestoneStep
+					local top3Allies,allyCount = getTop3Allies()
+					if (allyCount > 0) then -- hmm ?
+						local lolText = ""
+						for _, allyTeamID in ipairs(top3Allies) do
+								if (totalReceived[allyTeamID] > 0) then
+										lolText = lolText.. " ".. origNames[allyTeamID] .." [".. math_floor(totalReceived[allyTeamID])  .." E]"
+								end
 						end
-				end
-				if not supressDonationReports and (energyDonated >= 100000 or msgCount>=150) then
-						supressDonationReports = true
-						spSendCommands("say a:All E-share reports are now silent. (they still work)") -- Let's go!")
-				end
-				end
+						spSendCommands("say a:I have donated "..math_floor(energyDonated).." E."..lolText) -- Let's go!")
+					else
+						spSendCommands("say a:I have donated "..math_floor(energyDonated).." E.") -- Let's go!")
+					end
+			end
+			if not supressDonationReports and (energyDonated >= 100000 or msgCount>=150) then
+					supressDonationReports = true
+					spSendCommands("say a:All E-share reports are now silent. (they still work)") -- Let's go!")
+			end
+		end
     end
 end
 
-local legstarfallDefID = UnitDefNames.legstarfall and UnitDefNames.legstarfall.id or nil
+local legministarfallDefID = UnitDefNames.legstarfall and UnitDefNames.legministarfall.id or nil
 local function isCalamity(unitDefID)
-	return unitDefID and ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID) or (legstarfallDefID == unitDefID))
+	return unitDefID and ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID) or (legministarfallDefID == unitDefID))
+end
+local legstarfallDefID = UnitDefNames.legstarfall and UnitDefNames.legministarfall.id or nil
+local function isStarfall(unitDefID)
+	return unitDefID and (legstarfallDefID == unitDefID)
 end
 function widget:UnitGiven(unitID, unitDefID, newTeam, oldTeam)
 	if newTeam == myTeamID then
@@ -439,6 +438,12 @@ function widget:UnitGiven(unitID, unitDefID, newTeam, oldTeam)
 			local _, _, _, _, buildProgress = spGetUnitHealth(unitID)
 			if (buildProgress >= 1) then
 				myCalamityCount = myCalamityCount + 1
+			end
+		end
+		if isStarfall(unitDefID) then
+			local _, _, _, _, buildProgress = spGetUnitHealth(unitID)
+			if (buildProgress >= 1) then
+				myStarfallCount = myStarfallCount + 1
 			end
 		end
 	end
@@ -451,12 +456,21 @@ function widget:UnitDestroyed(unitID, unitDefID, unitTeam, _, _, _)
 				myCalamityCount = 0
 			end
 		end
+		if isStarfall(unitDefID) then
+			myStarfallCount = myStarfallCount - 1
+			if (myStarfallCount < 0) then
+				myStarfallCount = 0
+			end
+		end
 	end
 end
 function widget:UnitFinished(unitID, unitDefID, unitTeam)
 	if (unitTeam == myTeamID) then
 		if isCalamity(unitDefID) then
 			myCalamityCount = myCalamityCount + 1
+		end
+		if isStarfall(unitDefID) then
+			myStarfallCount = myStarfallCount + 1
 		end
 	end
 end
@@ -466,27 +480,27 @@ function widget:UnitTaken(unitID, unitDefID, oldTeam, newTeam)
 	end
 end
 function widget:GameFrame(frame)
-		if spGetSpectatingState() then return end
+	if spGetSpectatingState() then return end
     if (frame % updateFrameRate) == 1 then
         UpdateEnergy()
-				AdjustMMLevelSlider()
+		AdjustMMLevelSlider()
 
-				if not gameover then -- fallback for gameover not triggering
-						local EnemyComCount = spGetTeamRulesParam(myTeamID, "enemyComCount")
-						--[[local allyComs = 0
-					  local teamList = myAllyTeamList
-						for _, teamID in ipairs(teamList) do
-							if spAreTeamsAllied(myTeamID, teamID) then
-								for unitDefID,_ in pairs(isCommander) do
-									allyComs = allyComs + spGetTeamUnitDefCount(teamID, unitDefID)
-								end
-							end
-						end]]
-						if EnemyComCount <= 0 --[[or allyComs <= 0]] then
-								GameOverEvent()
-								gameover = true
-						end
+		if not gameover then -- fallback for gameover not triggering
+			local EnemyComCount = spGetTeamRulesParam(myTeamID, "enemyComCount")
+			--[[local allyComs = 0
+			local teamList = myAllyTeamList
+			for _, teamID in ipairs(teamList) do
+				if spAreTeamsAllied(myTeamID, teamID) then
+					for unitDefID,_ in pairs(isCommander) do
+						allyComs = allyComs + spGetTeamUnitDefCount(teamID, unitDefID)
+					end
 				end
+			end]]
+			if EnemyComCount <= 0 --[[or allyComs <= 0]] then
+				GameOverEvent()
+				gameover = true
+			end
+		end
     end
 end
 function widget:TextCommand(command)
@@ -510,10 +524,10 @@ function PrintStats()
 end
 function getTop3Allies()
     local sortedAllies = {}
-		local allyCount = 0
+	local allyCount = 0
     for allyTeamID, energySpent in pairs(totalReceived) do
         table.insert(sortedAllies, {allyTeamID = allyTeamID, energySpent = energySpent})
-				allyCount = allyCount+1
+		allyCount = allyCount+1
     end
 
     -- Sort the allies based on energy spent in descending order
