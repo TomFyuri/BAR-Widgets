@@ -34,6 +34,7 @@ local spGetTeamRulesParam = Spring.GetTeamRulesParam
 local spGetSpectatingState = Spring.GetSpectatingState
 local spGetUnitHealth = Spring.GetUnitHealth
 local spGetTeamUnitDefCount = Spring.GetTeamUnitDefCount
+local spGetUnitDefID = Spring.GetUnitDefID
 local spEcho = Spring.Echo
 local myTeamID = Spring.GetMyTeamID()
 local myAllyTeamID = Spring.GetMyAllyTeamID()
@@ -45,6 +46,10 @@ local math_floor = math.floor
 local adjustSlider = true -- do you want metal makers slider automated?
 local dontStoreMoreThanThis = 9000 -- all energy beyond 9000 will be turned into metal
 -- if you have calamity ^ this will become 30k instead
+local donateEnergy = true
+if Spring.GetModOptions().energy_share_rework == true then -- gadget version is on, let it share energy instead
+	donateEnergy = false
+end
 
 local energyThresholdDefault = 1000 -- income (without loss) should be at least this for sharing to work
 local storageThresholdDefault = 1000 -- minimum E in storage before consider sending some -- realistically i don't send more than 10% of this -- also if you have calamity it automatically sets to 30k
@@ -151,9 +156,21 @@ function GetTeamData()
     end
 end
 function widget:Initialize()
-  if(Spring.IsReplay() or Spring.GetSpectatingState()) then
-    widgetHandler:RemoveWidget()
-  end
+	if(Spring.IsReplay() or Spring.GetSpectatingState()) then
+		widgetHandler:RemoveWidget()
+	end
+	local myUnits = Spring.GetTeamUnits(myTeamID)
+	if myUnits then
+		for myUnitIndx=1,#myUnits do
+			local myUnitID = myUnits[myUnitIndx]
+			local finished = select(5,spGetUnitHealth(myUnitID))==1
+			local unitDefID = spGetUnitDefID(myUnitID)
+			local unitDef = UnitDefs[unitDefID]
+			if finished then
+				widget:UnitFinished(myUnitID, unitDefID, myTeamID) 
+			end
+		end
+	end
 	GetTeamData()
 	SetupGui()
 end
@@ -182,9 +199,9 @@ end
 function widget:GameStart()
   -- dont do anything in 1v1
 	GetTeamData()
-  if (#myAllyTeamList <= 1) and not (adjustSlider) then
-    widgetHandler:RemoveWidget()
-  end
+	if (#myAllyTeamList <= 1) and not (adjustSlider) then
+		widgetHandler:RemoveWidget()
+	end
 	SetupGui()
 	-- joke
 	if silentMode then return end
@@ -208,7 +225,6 @@ local function GetAIName(teamID)
     return Spring.I18N('ui.playersList.aiName', { name = name })
 end
 local function AdjustMMLevelSlider()
-	if not adjustSlider then return end
 	local eCurrMy, eStorMy,_ , eIncoMy, eExpeMy, eShare,eSent,eReceived = spGetTeamResources(myTeamID, "energy")
 	local energyLimit = dontStoreMoreThanThis
 	if (myStarfallCount > 0) then energyLimit = 400000
@@ -428,7 +444,7 @@ local legministarfallDefID = UnitDefNames.legstarfall and UnitDefNames.legminist
 local function isCalamity(unitDefID)
 	return unitDefID and ((armvulcDefID == unitDefID) or (corbuzzDefID == unitDefID) or (legministarfallDefID == unitDefID))
 end
-local legstarfallDefID = UnitDefNames.legstarfall and UnitDefNames.legministarfall.id or nil
+local legstarfallDefID = UnitDefNames.legstarfall and UnitDefNames.legstarfall.id or nil
 local function isStarfall(unitDefID)
 	return unitDefID and (legstarfallDefID == unitDefID)
 end
@@ -482,8 +498,12 @@ end
 function widget:GameFrame(frame)
 	if spGetSpectatingState() then return end
     if (frame % updateFrameRate) == 1 then
-        UpdateEnergy()
-		AdjustMMLevelSlider()
+		if donateEnergy then
+        	UpdateEnergy()
+		end
+		if adjustSlider then
+			AdjustMMLevelSlider()
+		end
 
 		if not gameover then -- fallback for gameover not triggering
 			local EnemyComCount = spGetTeamRulesParam(myTeamID, "enemyComCount")
