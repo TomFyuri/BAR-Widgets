@@ -317,7 +317,7 @@ local function UpdateEnergy()
 			end
             --spEcho(tostring(isDead)..' '..tostring(name)..' '..tostring(active)..' '..tostring(allyTeamID)..' '..tostring(myTeamID))
             if not(isDead) and active and name then
-				local aCurrMy, aStorMy, _, aIncoMy, aExpeMy, aShare,aSent,aReceived = spGetTeamResources(allyTeamID, "energy")
+				local aCurrMy, aStorMy, _, aIncoMy, aExpeMy, _,aSent,aReceived = spGetTeamResources(allyTeamID, "energy")
 				local allyEnergyThreshold = spGetTeamRulesParam(allyTeamID, 'mmLevel')
 				if (allyEnergyThreshold == nil) then allyEnergyThreshold = allyEnergyThresholdDefault
 				else
@@ -328,8 +328,8 @@ local function UpdateEnergy()
 						allyEnergyThreshold = 0.5
 					end
 				end
-				local allyIncome = aIncoMy + aShare+aSent+aReceived
-                local allyIncomeWithLoss = aIncoMy + aShare+aSent+aReceived - aExpeMy
+				local allyIncome = aIncoMy -aSent+aReceived
+                local allyIncomeWithLoss = aIncoMy - aExpeMy -aSent+aReceived - aExpeMy
 				if debug then
 					debug_text = debug_text.."\n".."aIncWLoss: "..math_floor(allyIncomeWithLoss).." aIncMax: "..math_floor(allyEnergyIncomeMax).." aCurr: "..math_floor(aCurrMy-aExpeMy).." aThres: "..math_floor(allyEnergyThreshold * aStorMy).." mmLevel:"..math_floor(allyEnergyThreshold*100).."%"
 				end
