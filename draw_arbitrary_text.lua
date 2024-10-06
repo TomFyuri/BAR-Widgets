@@ -600,22 +600,36 @@ local function WriteTextAction(_, _, args, data)
 end
 
 function widget:TextCommand(command)
-    local keyword1 = 'write_text'
-    local keyword1b = 'wr'
-	local keyword2 = 'text_scale' -- or text_size ?
-	local keyword2b = 'ts'
-    if (string.find(command, keyword1) == 1) and not(string.find(command, keyword1b) == 1) then
-        local text = string.sub(command, string.len(keyword1) + 2) -- +2 to skip the space after keyword
-        WriteText(text)
-	elseif (string.find(command, keyword2) == 1) and not(string.find(command, keyword2b) == 1) then
-		sizeBoost = tonumber(string.sub(command, string.len(keyword2) + 2))
-		if sizeBoost < 0 then sizeBoost = 5 end
-    elseif (string.find(command, keyword1b) == 1) and not(string.find(command, keyword1) == 1) then
-        local text = string.sub(command, string.len(keyword1b) + 2) -- +2 to skip the space after keyword
-        WriteText(text)
-	elseif (string.find(command, keyword2b) == 1) and not(string.find(command, keyword2) == 1) then
-		sizeBoost = tonumber(string.sub(command, string.len(keyword2b) + 2))
-		if sizeBoost < 0 then sizeBoost = 5 end
+    -- Command keywords and their shorthand counterparts
+    local commands = {
+        write_text = {full = 'write_text', short = 'wr', action = WriteText},
+        text_scale = {full = 'text_scale', short = 'ts', action = function(size) sizeBoost = math.max(5, tonumber(size) or 5) end}
+    }
+
+    -- Split the command into words (by spaces)
+    local words = {}
+    for word in string.gmatch(command, "%S+") do
+        table.insert(words, word)
+    end
+
+    -- The first word is the command keyword, the rest are arguments
+    local keyword = words[1]
+    local args = table.concat(words, " ", 2)  -- Combine the remaining words as arguments
+
+    -- Helper function to match and process the command
+    local function processCommand(keywordData)
+        if keyword == keywordData.full or keyword == keywordData.short then
+            keywordData.action(args)
+            return true -- Command processed
+        end
+        return false
+    end
+
+    -- Process each command keyword
+    for _, keywordData in pairs(commands) do
+        if processCommand(keywordData) then
+            break -- Exit once a command is processed
+        end
     end
 end
 
